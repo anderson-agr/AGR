@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AGR.Views.CadastroView">
+<StackLayout>
+<Entry  Text="{Binding EntidadeAtual.Nome}" Placeholder="Nome"></Entry>
+  <Entry  Text="{Binding  EntidadeAtual.Sobrenome}" Placeholder="Sobrenome"></Entry>
+
+  <Button Text="Salvar" IsVisible="{Binding SalvarVisibilidade}" Command="{Binding SalvarCommand}"></Button>
+  <Button Text="Alterar" IsVisible="{Binding AlterarVisibilidade}" Command="{Binding AlterarCommand}"></Button>
+  <Button Text="Excluir" IsVisible="{Binding ExcluirVisibilidade}" Command="{Binding ExcluirCommand}"></Button>
+</StackLayout>
+
+</ContentPage>

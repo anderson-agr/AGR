@@ -42,6 +42,7 @@
     <Compile Include="ControlRenderer\StartRecordButton.cs" />
     <Compile Include="Ext\LinqExtensions.cs" />
     <Compile Include="Interfaces\IMensagens.cs" />
+    <Compile Include="Interfaces\IPictureTaker.cs" />
     <Compile Include="iOSVideoPlayer.cs" />
     <Compile Include="Library\VideoData.cs" />
     <Compile Include="Library\VideoState.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Views\CadastroView.xaml.cs">
       <DependentUpon>CadastroView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\FotoPage.cs" />
     <Compile Include="Views\HomeView.xaml.cs">
       <DependentUpon>HomeView.xaml</DependentUpon>
     </Compile>
@@ -109,7 +111,7 @@
       <Name>AGR.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\AGR.Entidade\AGR.Entidade.csproj">
-      <Project>{D67BA1B6-D4E8-414E-A28F-A652B79E3155}</Project>
+      <Project>{d67ba1b6-d4e8-414e-a28f-a652b79e3155}</Project>
       <Name>AGR.Entidade</Name>
     </ProjectReference>
   </ItemGroup>

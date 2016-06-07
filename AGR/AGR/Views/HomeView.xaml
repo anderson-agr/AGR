@@ -7,6 +7,7 @@
     <Button Text="Listar" x:Name="btnListar" Command="{Binding CarregaCommand}"></Button>
     <Button x:Name="btnGravaAudio" Text="Gravavação de audio"  Command="{Binding GravarCommand}" />
     <Button x:Name="btnVideo" Text="Videos" Command="{Binding VideosCommand}" />
+    <Button x:Name="btnFoto" Text="Fotos" Command="{Binding FotosCommand}" />
 
     <Label Text="Red"></Label>
     <Slider Maximum="1" Minimum="0" x:Name="SliderRed" ValueChanged="Slider_OnValueChanged"></Slider>

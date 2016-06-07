@@ -1,16 +1,10 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using AGR.Entidade.Annotations;
-using AGR.Entidade.Base;
+﻿using AGR.Entidade.Base;
 using AGR.Entidade.Exceptions;
-using SQLite.Net.Attributes;
 
 namespace AGR.Entidade
 {
     public class Usuario : EntidadeBase
     {
-
-
         private string _nome;
         private string _sobrenome;
 
@@ -33,8 +27,7 @@ namespace AGR.Entidade
                 OnPropertyChanged(nameof(Sobrenome));
             }
         }
-
-
+        
         public override void Validate()
         {
             if (string.IsNullOrWhiteSpace(Nome))

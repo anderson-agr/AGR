@@ -10,21 +10,24 @@ using UIKit;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.iOS;
 
-
 [assembly: ExportRenderer(typeof(StartRecordButton), typeof(StartRecordingButtonRenderer))]
-
 
 namespace AGR.iOS.Buttons
 {
     public class StartRecordingButtonRenderer : ButtonRenderer
     {
-        AVAudioRecorder recorder;
-        AVPlayer player;
-        NSDictionary settings;
-        Stopwatch stopwatch = null;
-        NSUrl audioFilePath = null;
-        NSObject observer;
+        AVAudioRecorder _recorder;
+        AVPlayer _player;
+        NSUrl _audioFilePath;
+        NSDictionary _settings;
+        Stopwatch _stopwatch;
 
+        NSObject _observer;
+      
+        public StartRecordingButtonRenderer()
+        {
+            AudioSession.Initialize();
+        }
         protected override void OnElementChanged(ElementChangedEventArgs<Button> e)
         {
             try
@@ -42,41 +45,40 @@ namespace AGR.iOS.Buttons
 
                 if (Control != null)
                 {
-                    Control.TouchUpInside+= (send, ebla) =>
+                    Control.TouchUpInside += (send, ebla) =>
+                     {
+                         if (Control.TitleLabel.Text.Contains("Gravar"))
+                         {
+                             Console.WriteLine("Begin Recording");
+
+                             AudioSession.Category = AudioSessionCategory.RecordAudio;
+                             AudioSession.SetActive(true);
+
+                             if (!PrepareAudioRecording()) return;
+                             if (!_recorder.Record()) return;
+                             _stopwatch = new Stopwatch();
+                             _stopwatch.Start();
+
+                             Control.SetTitle("Parar", UIControlState.Normal);
+                         }
+                         else
+                         {
+                             if (_recorder != null && !_recorder.Record()) return;
+                             _recorder?.Stop();
+                             Control.SetTitle($" Gravar {_stopwatch.Elapsed:hh\\:mm\\:ss} ", UIControlState.Normal);
+                             _stopwatch.Stop();
+
+                             MessagingCenter.Send<StartRecordingButtonRenderer, NSUrl>(this, "audioFile", _audioFilePath);
+
+                         }
+                     };
+                    _observer = NSNotificationCenter.DefaultCenter.AddObserver(AVPlayerItem.DidPlayToEndTimeNotification, delegate
                     {
-                        if (Control.TitleLabel.Text == "Gravar")
-                        {
-                            Console.WriteLine("Begin Recording");
+                        _player?.Dispose();
+                        _player = null;
+                    });
 
-                            AudioSession.Category = AudioSessionCategory.RecordAudio;
-                            AudioSession.SetActive(true);
 
-                            if (!PrepareAudioRecording())
-                            {
-                                return;
-                            }
-
-                            if (!recorder.Record())
-                            {
-                                return;
-                            }
-
-                            this.stopwatch = new Stopwatch();
-                            this.stopwatch.Start();
-
-                            Control.SetTitle("Parar", UIControlState.Normal);
-                        }
-                        else
-                        {
-
-                            this.recorder.Stop();
-
-                            Control.SetTitle(string.Format("{0:hh\\:mm\\:ss} Parado", this.stopwatch.Elapsed), UIControlState.Normal); ;
-                            this.stopwatch.Stop();
-
-                        }
-                    };
-                    Control.TitleLabel.Text = "TESTE";
                 }
             }
             catch (Exception exe)
@@ -84,46 +86,6 @@ namespace AGR.iOS.Buttons
                 throw new Exception(exe.Message);
             }
         }
-
-        private void Control_TouchDown(object sender, EventArgs e)
-        {
-        
-            if (Control.TitleLabel.Text == "Gravar")
-            {
-                   Console.WriteLine("Begin Recording");
-
-            AudioSession.Category = AudioSessionCategory.RecordAudio;
-            AudioSession.SetActive(true);
-
-            if (!PrepareAudioRecording())
-            {
-                return;
-            }
-
-            if (!recorder.Record())
-            {
-                return;
-            }
-
-            this.stopwatch = new Stopwatch();
-            this.stopwatch.Start();
-
-                Control.SetTitle("Parar", UIControlState.Normal);
-            }
-            else
-            {
-
-                this.recorder.Stop();
-
-                Control.SetTitle(string.Format("{0:hh\\:mm\\:ss} Parado", this.stopwatch.Elapsed), UIControlState.Normal); ;
-                this.stopwatch.Stop();
-
-            }
-
-
-
-        }
-
 
         bool PrepareAudioRecording()
         {
@@ -143,20 +105,22 @@ namespace AGR.iOS.Buttons
             }
 
             // Declare string for application temp path and tack on the file extension
-            string fileName = string.Format("Myfile{0}.aac", DateTime.Now.ToString("yyyyMMddHHmmss"));
+            string fileName = $"Myfile{DateTime.Now.ToString("yyyyMMddHHmmss")}.aac";
             string tempRecording = Path.Combine(Path.GetTempPath(), fileName);
 
             Console.WriteLine(tempRecording);
-            this.audioFilePath = NSUrl.FromFilename(tempRecording);
+            _audioFilePath = NSUrl.FromFilename(tempRecording);
+
+           
 
             //set up the NSObject Array of values that will be combined with the keys to make the NSDictionary
             NSObject[] values = new NSObject[]
-            {
+             {
                 NSNumber.FromFloat(44100.0f),
-                NSNumber.FromInt32((int)AudioToolbox.AudioFormatType.MPEG4AAC),
+                NSNumber.FromInt32((int)AudioFormatType.MPEG4AAC),
                 NSNumber.FromInt32(1),
                 NSNumber.FromInt32((int)AVAudioQuality.High)
-            };
+             };
             //Set up the NSObject Array of keys that will be combined with the values to make the NSDictionary
             NSObject[] keys = new NSObject[]
             {
@@ -166,31 +130,29 @@ namespace AGR.iOS.Buttons
                 AVAudioSettings.AVEncoderAudioQualityKey
             };
             //Set Settings with the Values and Keys to create the NSDictionary
-            settings = NSDictionary.FromObjectsAndKeys(values, keys);
+            _settings = NSDictionary.FromObjectsAndKeys(values, keys);
 
             //Set recorder parameters
             NSError error;
-            recorder = AVAudioRecorder.Create(this.audioFilePath, new AudioSettings(settings), out error);
-            if ((recorder == null) || (error != null))
+            _recorder = AVAudioRecorder.Create(_audioFilePath, new AudioSettings(_settings), out error);
+            if ((_recorder == null) || (error != null))
             {
                 Console.WriteLine(error);
                 return false;
             }
-
             //Set Recorder to Prepare To Record
-            if (!recorder.PrepareToRecord())
+            if (!_recorder.PrepareToRecord())
             {
-                recorder.Dispose();
-                recorder = null;
+                _recorder.Dispose();
+                _recorder = null;
                 return false;
             }
-
-            recorder.FinishedRecording += delegate (object sender, AVStatusEventArgs e) {
-                recorder.Dispose();
-                recorder = null;
+            _recorder.FinishedRecording += delegate (object sender, AVStatusEventArgs e)
+            {
+                _recorder.Dispose();
+                _recorder = null;
                 Console.WriteLine("Done Recording (status: {0})", e.Status);
             };
-
             return true;
         }
     }

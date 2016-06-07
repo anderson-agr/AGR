@@ -13,6 +13,8 @@ namespace AGR.ViewModels
         public ICommand CadastrarCommand { get; set; }
         public ICommand GravarCommand { get; set; }
         public ICommand VideosCommand { get; set; }
+        public ICommand FotosCommand { get; set; }
+        
 
         public IMensagens Mensagens { get; set; }
         public INavigation Navigation { get; set; }
@@ -32,6 +34,11 @@ namespace AGR.ViewModels
             GravarCommand = new Command(() =>
             {
                 Navigation.PushAsync(new GravaAudioView());
+            });
+
+            FotosCommand = new Command(() =>
+            {
+                Navigation.PushAsync(new FotoPage());
             });
             VideosCommand = new Command(() =>
             {

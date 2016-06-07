@@ -7,8 +7,6 @@ using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using NotificationManager = AGR.Droid.Audio.NotificationManager;
 
-
-
 [assembly: ExportRenderer(typeof(StartRecordButton), typeof(StartRecordingButtonRenderer))]
 
 namespace AGR.Droid.Buttons
@@ -53,9 +51,7 @@ namespace AGR.Droid.Buttons
                             _isRecording = false;
                             Control.Text = "Gravar";
                         }
-
                     };
-                    
                 }
             }
             catch (Exception exe)
@@ -72,7 +68,6 @@ namespace AGR.Droid.Buttons
             {
                 nMan.ReleaseAudioResources();
             }
-
         }
 
         private async Task StartOperationAsync(INotificationReceiver nRec)
